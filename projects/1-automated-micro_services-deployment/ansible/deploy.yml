@@ -2,7 +2,7 @@
 - name: Provision EC2 Instanc with Docker & Telemetry Stack
   hosts: webservers
   become: true
-  gather_facts: false
+  gather_facts: true
 
   tasks:
     # ---------------------------------------------------------------------------
@@ -16,4 +16,129 @@
           - curl
           - gnupg
         state: present
-        update_cache: yes
+        update_cache: true 
+
+    # ---------------------------------------------------------------------------
+    # 2. Upstream Docker Repository Configuration
+    # ---------------------------------------------------------------------------
+    - name: Create directory for system keyrings
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Download official Docker GPG verification key
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.gpg
+        mode: '0644'
+
+    - name: Add official Docker upstream repository coordinates
+      apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+        filename: docker-ce
+
+    # ---------------------------------------------------------------------------
+    # 3. Component Installation
+    # ---------------------------------------------------------------------------
+    - name: Install latest production engine builds for Docker & Containerd
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+        update_cache: true
+
+    - name: Ensure Docker service is running and enabled on boot
+      service:
+        name: docker
+        state: started
+        enabled: true
+    
+    # ---------------------------------------------------------------------------
+    # 4. User Access Permissions
+    # ---------------------------------------------------------------------------
+    
+    - name: Append remote system user (Ubuntu) to docker execution group
+      user:
+        name: ubuntu
+        groups: docker
+        append: true 
+      # Reset connection to enforce group membership changes without logging out manually
+    - name: Reset ssh connection to apply group membership
+      meta: reset_connection
+    
+    # ---------------------------------------------------------------------------
+    # 5. Application Deployment Setup
+    # ---------------------------------------------------------------------------
+    - name: Create target directory for application deployment
+      file:
+        path: /home/ubuntu/app-stack
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: Drop Prometheus configuration mapping onto host system
+      copy:
+        src: prometheus.yml
+        dest: /home/ubuntu/app-stack/prometheus.yml
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+
+    - name: Drop multi-container docker-compose definition file
+      # Best Practice: Use a block scalar literal block (content) to structure yaml-in-yaml neatly
+      copy:
+        dest: /home/ubuntu/app-stack/docker-compose.yml
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+        content: |
+          version: '3.8'
+
+          services:
+            web_app:
+              image: nginxdemos/hello:latest
+              container_name: web_app
+              ports:
+                - "80:80"
+              restart: unless-stopped
+
+            node_exporter:
+              image: prom/node-exporter:v1.8.0
+              container_name: node_exporter
+              volumes:
+                - /proc:/host/proc:ro
+                - /sys:/host/sys:ro
+                - /:/rootfs:ro
+              command:
+                - '--path.procfs=/host/proc'
+                - '--path.sysfs=/host/sys'
+                - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+              ports:
+                - "9100:9100"
+              restart: unless-stopped
+
+            prometheus:
+              image: prom/prometheus:v2.51.0
+              container_name: prometheus
+              volumes:
+                - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+              command:
+                - '--config.file=/etc/prometheus/prometheus.yml'
+                - '--storage.tsdb.path=/prometheus'
+              ports:
+                - "9090:9090"
+              restart: unless-stopped
+
+    # ---------------------------------------------------------------------------
+    # 6. Service Execution
+    # ---------------------------------------------------------------------------
+    - name: Pull and execute docker-compose stack
+      shell: "docker compose up -d"
+      args:
+        chdir: /home/ubuntu/app-stack
+      become: false # Run as 'ubuntu' user now that it has been granted docker group access
