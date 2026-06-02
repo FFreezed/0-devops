@@ -1,0 +1,114 @@
+# ==============================================================================
+# 🔐 SENSITIVE DATA & CREDENTIALS (NEVER COMMIT THESE)
+# ==============================================================================
+# AWS credentials and config files if copied locally
+.aws/
+credentials
+*.pem
+*.pkcs12
+*.pfx
+*.p12
+*.key
+*.crt
+*.pem
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+secrets.yaml
+vault_password.txt
+
+# ==============================================================================
+# 🏗️ TERRAFORM / OPENTOFU
+# ==============================================================================
+# Local directory for managing plugins and modules
+.terraform/
+.opentofu/
+
+# Personal/secret variables (contains AWS keys, custom passwords)
+*.tfvars
+*.tfvars.json
+
+# Terraform execution state files (contains plain-text secrets/passwords)
+*.tfstate
+*.tfstate.*
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# .terraformrc or terraform.rc
+.terraformrc
+terraform.rc
+
+# ==============================================================================
+# 🤖 ANSIBLE
+# ==============================================================================
+# Ansible retry files (created when a playbook fails)
+*.retry
+
+# Local execution logs
+ansible.log
+
+# Ansible Galaxy downloaded roles and collections (should be installed via requirements.yml)
+roles/
+collections/
+!roles/.gitkeep
+
+# Local inventory overrides (keep your production/template inventories, ignore local test ones)
+local_inventory
+hosts.ini
+
+# ==============================================================================
+# 🐋 DOCKER
+# ==============================================================================
+# Docker data directories (if you mount local volumes for DBs/Prometheus)
+.docker/
+**/data/
+**/prometheus_data/
+**/grafana_data/
+
+# ==============================================================================
+# 🐍 PYTHON / VIRTUAL ENVIRONMENTS (If using for scripts/ansible-lint)
+# ==============================================================================
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# ==============================================================================
+# 💻 SYSTEM & EDITOR SPECIFIC
+# ==============================================================================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains (IntelliJ, PyCharm)
+.idea/

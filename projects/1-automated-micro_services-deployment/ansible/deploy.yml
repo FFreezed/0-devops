@@ -1,0 +1,19 @@
+---
+- name: Provision EC2 Instanc with Docker & Telemetry Stack
+  hosts: webservers
+  become: true
+  gather_facts: false
+
+  tasks:
+    # ---------------------------------------------------------------------------
+    # 1. System Dependencies
+    # ---------------------------------------------------------------------------
+    - name: Update apt cache and install system prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+        state: present
+        update_cache: yes
