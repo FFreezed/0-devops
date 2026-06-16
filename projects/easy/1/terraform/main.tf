@@ -53,7 +53,7 @@ resource "aws_security_group" "web_sg" {
         from_port   = 22
         to_port     = 22
         protocol    = "tcp"
-        cidr_blocks = [local.my_local_ip]
+        cidr_blocks = ["0.0.0.0/0"]
     }
 
     ingress {
@@ -85,6 +85,7 @@ resource "aws_instance" "server" {
     instance_type               = "t3.micro" 
     associate_public_ip_address = true       
     vpc_security_group_ids      = [aws_security_group.web_sg.id]
+    key_name                    = "demo-key-pair"
 
     root_block_device {
         volume_size           = 8

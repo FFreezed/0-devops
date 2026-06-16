@@ -170,6 +170,9 @@ terraform output
 
 ```
 
+Output: \
+![Terraform Output](./image/terraform_output.png)
+
 ### Configuration Verified
 
 Log directly into your remote server and verify that your application has been bundled and deployed inside an isolated container environment:
@@ -187,6 +190,9 @@ YOUR_PROJECT_web_1  Up 10 minutes       0.0.0.0:80->80/tcp
 
 ```
 
+Output: \
+![Configuration Output](./image/configuration_verified.png)
+
 ### Service Verification
 
 Open a standard web browser or run a command-line web request against your server's public IP address:
@@ -195,6 +201,9 @@ Open a standard web browser or run a command-line web request against your serve
 curl -I http://<YOUR_EC2_PUBLIC_IP>
 
 ```
+
+Output: \
+![Service Verification](./image/service_verification.png)
 
 The terminal response should return a clean `HTTP/1.1 200 OK` code, confirming that your containerized application is successfully receiving traffic and serving live data.
 
