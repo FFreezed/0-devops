@@ -27,11 +27,12 @@
         state: directory
         mode: '0755'
 
-    - name: Download official Docker GPG verification key
-      ansible.builtin.get_url:
+    # Fix: Use apt_key to register the key globally in the apt system trust matrix
+    - name: Download and define official Docker GPG verification key
+      apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
-        dest: /etc/apt/keyrings/docker.gpg
-        mode: '0644'
+        state: present
+        keyring: /etc/apt/keyrings/docker.gpg
 
     - name: Add official Docker upstream repository coordinates
       apt_repository:
@@ -89,8 +90,8 @@
         group: ubuntu
         mode: '0644'
 
+      # Note: Use a block scalar literal block (content) to structure yaml-in-yaml neatly
     - name: Drop multi-container docker-compose definition file
-      # Best Practice: Use a block scalar literal block (content) to structure yaml-in-yaml neatly
       copy:
         dest: /home/ubuntu/app-stack/docker-compose.yml
         owner: ubuntu

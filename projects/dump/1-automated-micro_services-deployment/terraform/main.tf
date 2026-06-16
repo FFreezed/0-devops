@@ -43,7 +43,7 @@ data "aws_ami" "ubuntu_24_04" {
 # ---------------------------------------------------------------------------
 
 resource "aws_security_group" "web_telemetry_sg" {
-    name        = "${var.environtment}-web-telemetry-sg"
+    name        = "${var.environment}-web-telemetry-sg"
     description = "Security group allowing SSH, HTTP, and Telemetry access"
     vpc_id      = data.aws_vpc.default.id
 
@@ -84,8 +84,8 @@ resource "aws_security_group" "web_telemetry_sg" {
     }
 
     tags = {
-        Name       = "${var.environtment}-sg"
-        Environment = var.environtment
+        Name       = "${var.environment}-sg"
+        Environment = var.environment
     }
 }
 
@@ -101,14 +101,14 @@ resource "aws_instance" "web_server" {
     key_name      = var.key_name
     
     root_block_device {
-        volume_size = 20
+        volume_size = 15 
         volume_type = "gp3"
         encrypted   = true
         delete_on_termination = true
     }
     
     tags = {
-        Name        = "${var.environtment}-ubuntu-server"
-        Environment = var.environtment
+        Name        = "${var.environment}-ubuntu-server"
+        Environment = var.environment
     }
 }

@@ -7,10 +7,10 @@ variable "aws_region" {
 variable "my_ip" {
     type    = string
     description = "IP address of the user's workspace for SSH access (in CIDR notation)"
-    default = "192.168.18.2/32"
+    default = "103.18.34.130/32"
 }
 
-variable "environtment" {
+variable "environment" {
     type    = string
     description = "Application environment tag."
     default = "dev"
