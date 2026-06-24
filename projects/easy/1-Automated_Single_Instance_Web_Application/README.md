@@ -8,14 +8,14 @@ Estimated Cost: ~$0.015 per hour (~$0.05 total for a 3-hour lab using AWS On-Dem
 
 Time to Complete: 2–3 hours
 
-🏢 Scenario & Architectural Design
+## 🏢 Scenario & Architectural Design
 When starting out in a DevOps or CloudOps role, companies rarely expect you to manage massive, multi-region Kubernetes clusters on day one. Instead, the most valuable skills you can master are Infrastructure as Code (IaC), Containerization, and CI/CD Pipelines. The bread-and-butter of day-to-day operations often involves taking a developer's application, wrapping it in a container, and deploying it automatically to a cloud server.
 
 In this scenario, your team needs to deploy a simple, containerized web application to a staging environment. Instead of configuring the server by hand, you will write a Terraform script to provision a low-cost AWS EC2 instance. Because your AWS Free Tier has expired, you will configure Terraform to request a highly predictable On-Demand instance, minimizing infrastructure disruption risks while keeping total operational costs under ten cents for the duration of the project.
 
 Once the infrastructure is live, you will set up a GitHub Actions pipeline that automatically builds a custom Docker image of your web application, pushes it to your server, and uses Docker Compose to launch the application seamlessly.
 
-📐 Logical Architecture Diagram (ASCII format)
+## 📐 Logical Architecture Diagram (ASCII format)
 
 ```text
   [ Developer ] ───► Git Push ───► [ GitHub Repository ]
@@ -43,21 +43,14 @@ Once the infrastructure is live, you will set up a GitHub Actions pipeline that 
 
 ```
 
-🎯 Learning Objectives & Skill Targets
+## 🎯 Learning Objectives & Skill Targets
 
 * **Predictable Infrastructure:** Write deterministic Terraform configuration files to provision predictable On-Demand cloud compute resources.
 * **Container Fundamentals:** Package an application into a lightweight, portable Docker container image.
 * **Multi-Container Orchestration:** Use Docker Compose to manage container variables and port mappings declaratively.
 * **Production CI/CD:** Build an automated GitHub Actions pipeline that securely communicates with a cloud server using SSH keys.
 
-💰 Frugal Ops: Cost Optimization Strategy
-Since your AWS Free Tier has expired, we must actively minimize costs to ensure this lab costs pennies:
-
-* **On-Demand Micro Instances:** We leverage a tiny `t3.micro` instance. On-Demand pricing guarantees that your instance will not be terminated mid-lab by AWS capacity reallocations, costing roughly $0.0104 USD per hour (depending on your chosen AWS region).
-* **Minimal Storage:** The root block storage device is locked to a small 8 GB volume using the standard `gp3` storage tier, costing a fraction of a cent for the duration of this lab.
-* **No Managed Extras:** We avoid costly AWS managed resources like Application Load Balancers, Elastic IPs, or NAT Gateways by deploying directly inside your AWS account's default public subnets.
-
-🛠️ The Implementation Requirements
+##  🛠️ The Implementation Requirements
 
 ### 1. Cloud Infrastructure (Terraform & AWS)
 
@@ -120,7 +113,7 @@ Create a workflow file at `.github/workflows/deploy.yml` in your repository. The
 
 > 🔒 **Security Note:** Never save your infrastructure credentials or SSH keys in plain text within your repository code. Navigate to your GitHub Repository Settings -> Secrets and Variables -> Actions, and safely store your `EC2_HOST` (your instance's public IP address) and `EC2_SSH_PRIVATE_KEY`.
 
-🚨 Operational Troubleshooting Inject (Live Fire Exercise)
+## 🚨 Operational Troubleshooting Inject (Live Fire Exercise)
 
 #### Failure Scenario
 

@@ -1,0 +1,27 @@
+# ArgoCD deploy command from SSH (Step 3)
+kubectl create -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side
+
+# SSH
+ssh -i demo-key-pair.pem ubuntu@108.136.39.233
+
+# Check the Control Plane Nodes
+kubectl get nodes
+
+# Verify System Core Pods:
+kubectl get pods -n kube-system
+
+# Verify the environment variable injection
+echo $KUBECONFIG
+Expected Output: /home/ubuntu/.kube/config
+
+# Check configuration file access layer ownership
+ls -la ~/.kube/config
+Expected Output: The file ownership flags should be explicitly mapped to ubuntu:ubuntu with permissions matching -rw------- (600).
+
+
+# Get ArgoCD PW
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode; echo
+
+# Login ArgoCD
+admin
+7qeqN-lZyCjW7qH9
