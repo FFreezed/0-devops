@@ -1,4 +1,3 @@
-# 1. Terraform Settings & Provider Configuration
 terraform {
     required_version = ">= 1.5.0"
     required_providers {
@@ -13,13 +12,6 @@ provider "aws" {
     region = "ap-southeast-3" 
 }
 
-# 2. Local Variables 
-locals {
-    # my_local_ip = "172.26.82.237/32" 
-    environment = "1node-k3s-argocd"
-}
-
-# 3. Dynamic AMI Data Source (Ubuntu 24.04 LTS)
 data "aws_ami" "ubuntu_24_04" {
     most_recent = true
     owners      = ["099720109477"]
@@ -30,10 +22,14 @@ data "aws_ami" "ubuntu_24_04" {
     }
 }
 
-# 4. Networking Security Group
+locals {
+    environment = "ansible-aws-spot-instance"
+}
+
 data "aws_vpc" "default" {
     default = true
 }
+
 
 resource "aws_security_group" "web_sg" {
     name        = "${local.environment}-sg"
@@ -56,22 +52,6 @@ resource "aws_security_group" "web_sg" {
         cidr_blocks = ["0.0.0.0/0"]
     }
 
-    ingress {
-        description = "ArgoCD Web UI Access"
-        from_port   = 8080
-        to_port     = 8080
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        description = "ArgoCD 30000"
-        from_port   = 30000
-        to_port     = 30000
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
     egress {
         description = "Allow all outbound traffic"
         from_port   = 0
@@ -85,15 +65,14 @@ resource "aws_security_group" "web_sg" {
     }
 }
 
-# 5. Spot EC2 Instance with K3s Cluster Bootstrapping
+
 resource "aws_instance" "server" {
     ami                         = data.aws_ami.ubuntu_24_04.id
-    instance_type               = "t3.small" 
+    instance_type               = "t3.micro" 
     associate_public_ip_address = true       
     vpc_security_group_ids      = [aws_security_group.web_sg.id]
     key_name                    = "demo-key-pair"
 
-    # Instance Spot Block
     instance_market_options {
         market_type = "spot"
         spot_options {
@@ -107,28 +86,6 @@ resource "aws_instance" "server" {
         encrypted             = true
         delete_on_termination = true
     }
-
-    user_data = <<-EOF
-                #!/bin/bash
-                sudo apt-get update -y
-
-                # 1. Install K3s and natively configure group read permissions for the config file
-                curl -sfL https://get.k3s.io | sh -s - --disable traefik --write-kubeconfig-mode 644
-
-                # 2. Wait a few seconds for the file system layers to settle
-                sleep 15
-
-                # 3. Create the home config path for the ubuntu user safely
-                mkdir -p /home/ubuntu/.kube
-                cp /etc/rancher/k3s/k3s.yaml /home/ubuntu/.kube/config
-                
-                # 4. Correct the file ownership explicitly
-                chown -R ubuntu:ubuntu /home/ubuntu/.kube
-                chmod 600 /home/ubuntu/.kube/config
-
-                # 5. Permanently append the KUBECONFIG environment variable path to the profile shell
-                echo "export KUBECONFIG=/home/ubuntu/.kube/config" >> /home/ubuntu/.bashrc
-                EOF
 
     tags = {
         Name        = "${local.environment}-server"

@@ -220,9 +220,15 @@ ip-172-x-x-x   Ready    control-plane,master   5m    v1.x.x+k3s1
 
 ```
 
+Output: \
+![Infrastructure Deploy](./images/infrastructure-deploy.png)
+
 ### GitOps Sync Verified
 
 Your ArgoCD web panel dashboard interface displays a healthy green state indicator showing that your `nginx-web-app` matches your Git repository perfectly.
+
+Output: \
+![GitOps Sync Verified](./images/argocd-dashboard.png)
 
 ### Application Verification
 
@@ -234,6 +240,9 @@ curl -I http://localhost:30000
 ```
 
 The console output must return a clean response showing an HTTP header profile containing `HTTP/1.1 200 OK`.
+
+Output: \
+![Application Verification](./images/application-verification.png)
 
 ---
 

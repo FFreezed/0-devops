@@ -1,8 +1,5 @@
-# ArgoCD deploy command from SSH (Step 3)
-kubectl create -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side
-
 # SSH
-ssh -i demo-key-pair.pem ubuntu@108.136.39.233
+ssh -i demo-key-pair.pem ubuntu@108.136.142.81
 
 # Check the Control Plane Nodes
 kubectl get nodes
@@ -24,4 +21,4 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 
 # Login ArgoCD
 admin
-7qeqN-lZyCjW7qH9
+KPvCY-aJLv1TAkbL
