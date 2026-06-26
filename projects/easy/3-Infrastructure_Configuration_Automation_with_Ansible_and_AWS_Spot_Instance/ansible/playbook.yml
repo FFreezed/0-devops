@@ -1,0 +1,22 @@
+- name: Configure Environment
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: Update package cache and install Apache
+      ansible.builtin.apt:
+        name: apache2
+        update_cache: true
+        state: present
+
+    - name: Start and enable Apache service
+      ansible.builtin.service:
+        name: apache2
+        state: started
+        enabled: true
+
+    - name: Copy Files to Web Server
+      ansible.builtin.copy:
+        src: ../bash_script/system_backup.sh
+        dest: /usr/local/bin/system_backup.sh
+        mode: '0755'
