@@ -151,6 +151,9 @@ terraform output
 
 ```
 
+Output:
+![EC2-Output](./images/3-infrastructure-output.png)
+
 ### Configuration Management Verified
 
 Your terminal shows a completely clean, successful execution log from your Ansible deployment run:
@@ -160,6 +163,9 @@ PLAY RECAP *********************************************************************
 my_cloud_server            : ok=4    changed=3    unreachable=0    failed=0    skipped=0
 
 ```
+
+Output:
+![Config-Management](./images/3-configuration.png)
 
 ### Script Execution & Functionality Verification
 
@@ -183,6 +189,9 @@ ls -l /var/backups/web_backup/
 -rw-r--r-- 1 root root 145 Jun 24 13:15 web-backup-2026-06-24.tar.gz
 
 ```
+
+Output:
+![script](./images/3-Script.png)
 
 ---
 
