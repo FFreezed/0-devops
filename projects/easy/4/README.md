@@ -72,11 +72,18 @@ Create a Terraform directory with your base configuration (`main.tf`, `outputs.t
 #!/bin/bash
 sudo apt-get update -y
 sudo apt-get install -y docker.io
-curl -sfL https://get.k3s.io | sh -s - --disable traefik
+
+curl -sfL https://get.k3s.io | sh -s - --disable traefik --write-kubeconfig-mode 644
+
 sleep 20
+
 mkdir -p /home/ubuntu/.kube
 cp /etc/rancher/k3s/k3s.yaml /home/ubuntu/.kube/config
+
 chown -R ubuntu:ubuntu /home/ubuntu/.kube
+chmod 600 /home/ubuntu/.kube/config
+
+echo "export KUBECONFIG=/home/ubuntu/.kube/config" >> /home/ubuntu/.bashrc
 
 ```
 
@@ -128,6 +135,13 @@ Create a file named `pod-manifest.yaml` on your server. Write a declaration that
 
 * **The Service Mapping:**
 * Add a Kubernetes `Service` declaration below your Pod manifest. Set its type to `NodePort`, routing public traffic from incoming node port `30080` directly to the `web-server` container on port `80`.
+
+* **Additional Step (ErrImageNeverPull fix)**
+1. Export the image from Docker into a physical archive file
+`sudo docker save local-optimized-web:v1 -o web-image.tar`
+
+2. Import that archive file directly into the K3s container runtime cache
+`sudo k3s ctr images import web-image.tar`
 
 
 
@@ -190,6 +204,9 @@ docker images local-optimized-web:v1
 
 ```
 
+Output: \
+![Multi-Stage-Build](./images/multi-stage.png)
+
 ### Pod Cluster Sync Verified
 
 Check your Kubernetes cluster resources to verify that both containers are concurrently active and running inside the single Pod boundary:
@@ -206,6 +223,9 @@ NAME              READY   STATUS    RESTARTS   AGE
 web-logging-pod   2/2     Running   0          4m
 
 ```
+
+Output: \
+![Pod-Cluster-Sync](./images/pod-cluster-sync.png)
 
 *(Note the `2/2` column, proving both containers are concurrently active inside that Pod).*
 
@@ -224,6 +244,9 @@ Now, check the logs of your second container (`log-monitor`). Because the two co
 kubectl logs web-logging-pod -c log-monitor
 
 ```
+
+Output: \
+![Pod-Interaction](./images/pod-interaction-shared-volume.png)
 
 **Expected Log Stream Response:**
 

@@ -23,13 +23,12 @@ data "aws_ami" "ubuntu_24_04" {
 }
 
 locals {
-    environment = "ansible-aws-spot-instance"
+    environment = "multi-stage-docker-kubernetes"
 }
 
 data "aws_vpc" "default" {
     default = true
 }
-
 
 resource "aws_security_group" "web_sg" {
     name        = "${local.environment}-sg"
@@ -37,7 +36,7 @@ resource "aws_security_group" "web_sg" {
     vpc_id      = data.aws_vpc.default.id
 
     ingress {
-        description = "SSH from allowed workspace only"
+        description = "SSH"
         from_port   = 22
         to_port     = 22
         protocol    = "tcp"
@@ -45,9 +44,9 @@ resource "aws_security_group" "web_sg" {
     }
 
     ingress {
-        description = "HTTP traffic from anywhere"
-        from_port   = 80
-        to_port     = 80
+        description = "TCP NodePort"
+        from_port   = 30080 
+        to_port     = 30080
         protocol    = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
     }
@@ -68,7 +67,7 @@ resource "aws_security_group" "web_sg" {
 
 resource "aws_instance" "server" {
     ami                         = data.aws_ami.ubuntu_24_04.id
-    instance_type               = "t3.micro" 
+    instance_type               = "t3.small" 
     associate_public_ip_address = true       
     vpc_security_group_ids      = [aws_security_group.web_sg.id]
     key_name                    = "demo-key-pair"
@@ -81,11 +80,29 @@ resource "aws_instance" "server" {
     } 
 
     root_block_device {
-        volume_size           = 15 
+        volume_size           = 20 
         volume_type           = "gp3"
         encrypted             = true
         delete_on_termination = true
     }
+
+    user_data = <<-EOF
+                #!/bin/bash
+                sudo apt-get update -y
+                sudo apt-get install -y docker.io
+
+                curl -sfL https://get.k3s.io | sh -s - --disable traefik --write-kubeconfig-mode 644
+
+                sleep 20
+
+                mkdir -p /home/ubuntu/.kube
+                cp /etc/rancher/k3s/k3s.yaml /home/ubuntu/.kube/config
+                
+                chown -R ubuntu:ubuntu /home/ubuntu/.kube
+                chmod 600 /home/ubuntu/.kube/config
+
+                echo "export KUBECONFIG=/home/ubuntu/.kube/config" >> /home/ubuntu/.bashrc
+                EOF
 
     tags = {
         Name        = "${local.environment}-server"
