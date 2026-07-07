@@ -1,0 +1,8 @@
+# Command to move file from local to EC2 from "terraform" folder
+scp -i demo-key-pair.pem ../yaml-file/app-deployment.yaml ../yaml-file/monitoring-stack.yaml ../yaml-file/prometheus-config.yaml ubuntu@108.136.118.7:/home/ubuntu/
+
+# Kubernetes apply order
+kubectl apply -f app-deployment.yaml
+kubectl apply -f monitoring-stack.yaml
+kubectl apply -f prometheus-config.yaml
+
