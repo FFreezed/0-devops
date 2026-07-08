@@ -1,0 +1,1 @@
+scp -i demo-key-pair.pem -r ../support-file/ ubuntu@15.232.25.85:/home/ubuntu/

@@ -23,7 +23,7 @@ data "aws_ami" "ubuntu_24_04" {
 }
 
 locals {
-    environment = "metrics-scraping"
+    environment = "logging-grafana-loki"
 }
 
 data "aws_vpc" "default" {
